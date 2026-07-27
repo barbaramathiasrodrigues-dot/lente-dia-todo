@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visão do Dia Todo - Casa OS</title>
+  <title>Planejador & Panorâmica do Dia - Casa OS</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -21,6 +22,10 @@
       --texto-primario: #e8d8c8;
       --texto-dourado: #f0c987;
       --verde-elfico: #81b29a;
+      --rosa-danca: #e07a5f;
+      --sol-manha: #f4a261;
+      --sol-tarde: #e76f51;
+      --lua-noite: #a8dadc;
       --fonte-titulo: 'Cinzel Decorative', serif;
       --fonte-sub: 'Cinzel', serif;
       --fonte-corpo: 'Quicksand', sans-serif;
@@ -38,7 +43,7 @@
 
     .card {
       width: 100%;
-      max-width: 520px;
+      max-width: 540px;
       background: var(--card-bg);
       border: 2px solid var(--borda-dourada);
       border-radius: 12px;
@@ -57,38 +62,147 @@
       padding-bottom: 8px;
     }
 
-    .secao {
-      background: rgba(0,0,0,0.3);
-      border-left: 3px solid var(--borda-dourada);
-      padding: 10px 12px;
-      border-radius: 0 6px 6px 0;
-      margin-bottom: 10px;
-      font-size: 0.83rem;
-      line-height: 1.4;
+    .radar-box {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--verde-elfico);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 14px;
+      font-size: 0.82rem;
     }
 
-    .label {
-      font-family: var(--fonte-sub);
-      color: var(--texto-dourado);
-      font-weight: bold;
-      font-size: 0.75rem;
-      margin-bottom: 2px;
+    .form-captura {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      background: rgba(0,0,0,0.3);
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(197, 160, 89, 0.3);
     }
+
+    input[type="text"], select {
+      background: rgba(0,0,0,0.6);
+      border: 1px solid var(--borda-dourada);
+      color: var(--texto-primario);
+      border-radius: 4px;
+      padding: 8px;
+      font-family: var(--fonte-corpo);
+      font-size: 0.82rem;
+      box-sizing: border-box;
+    }
+
+    input[type="text"] { flex: 1; }
+
+    .btn-add {
+      background: linear-gradient(135deg, #c5a059, #81b29a);
+      border: none;
+      color: #0d0a07;
+      font-family: var(--fonte-sub);
+      font-weight: bold;
+      padding: 0 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .secao-bloco {
+      background: rgba(0,0,0,0.3);
+      border-left: 3px solid var(--borda-dourada);
+      padding: 10px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 12px;
+    }
+
+    .secao-titulo {
+      font-family: var(--fonte-sub);
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .item-tarefa {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.4);
+      padding: 6px 8px;
+      border-radius: 4px;
+      margin-bottom: 6px;
+      border: 1px solid rgba(197, 160, 89, 0.2);
+      font-size: 0.82rem;
+    }
+
+    .item-tarefa.concluida {
+      opacity: 0.5;
+      text-decoration: line-through;
+    }
+
+    .item-texto { flex: 1; }
+
+    .btn-acao {
+      background: transparent;
+      border: none;
+      color: var(--texto-dourado);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 2px 4px;
+    }
+
+    .btn-acao:hover { color: var(--rosa-danca); }
   </style>
 </head>
 <body>
 
   <div class="card">
-    <h2>📜 Panorâmica do Dia Todo</h2>
-    
-    <!-- Bloco de Leitura do Radar Corporal -->
-    <div class="secao" style="border-left-color: var(--verde-elfico);">
-      <div class="label" style="color: var(--verde-elfico);">🌿 RADAR CORPORAL (ÚLTIMA LEITURA)</div>
+    <h2>📜 Planejamento & Panorâmica do Dia</h2>
+
+    <!-- Leitura do Radar Corporal -->
+    <div class="radar-box">
+      <div style="font-family: var(--fonte-sub); color: var(--verde-elfico); font-weight: bold; font-size: 0.75rem; margin-bottom: 4px;">
+        🌿 RADAR CORPORAL (ÚLTIMA LEITURA)
+      </div>
       <div id="radar-resumo">Sincronizando corpo...</div>
     </div>
 
-    <!-- Conteúdo Unificado do Dia -->
-    <div id="conteudo-dia">Sincronizando com o Arquivo Central...</div>
+    <!-- 📥 Descarregar & Planejar o Dia -->
+    <div class="form-captura">
+      <input type="text" id="nova-tarefa" placeholder="Digite uma intenção ou tarefa para o dia..." onkeypress="tratarEnter(event)" />
+      <select id="destino-periodo">
+        <option value="manha">🌅 Manhã</option>
+        <option value="tarde">☀️ Tarde</option>
+        <option value="noite">🌙 Noite</option>
+        <option value="geral">⏳ Geral</option>
+      </select>
+      <button class="btn-add" onclick="adicionarTarefa()">+ Add</button>
+    </div>
+
+    <!-- Lista de Manhã -->
+    <div class="secao-bloco" style="border-left-color: var(--sol-manha);">
+      <div class="secao-titulo" style="color: var(--sol-manha);">🌅 BLOCO DA MANHÃ</div>
+      <div id="lista-manha"><p style="font-size:0.75rem; color:#aaa; margin:0;">Nenhum item alocado para a manhã.</p></div>
+    </div>
+
+    <!-- Lista de Tarde -->
+    <div class="secao-bloco" style="border-left-color: var(--sol-tarde);">
+      <div class="secao-titulo" style="color: var(--sol-tarde);">☀️ BLOCO DA TARDE</div>
+      <div id="lista-tarde"><p style="font-size:0.75rem; color:#aaa; margin:0;">Nenhum item alocado para a tarde.</p></div>
+    </div>
+
+    <!-- Lista de Noite -->
+    <div class="secao-bloco" style="border-left-color: var(--lua-noite);">
+      <div class="secao-titulo" style="color: var(--lua-noite);">🌙 BLOCO DA NOITE</div>
+      <div id="lista-noite"><p style="font-size:0.75rem; color:#aaa; margin:0;">Nenhum item alocado para a noite.</p></div>
+    </div>
+
+    <!-- Lista Geral -->
+    <div class="secao-bloco" style="border-left-color: var(--borda-dourada);">
+      <div class="secao-titulo" style="color: var(--texto-dourado);">⏳ FLUTUANTE / A QUALQUER MOMENTO</div>
+      <div id="lista-geral"><p style="font-size:0.75rem; color:#aaa; margin:0;">Nenhum item flutuante.</p></div>
+    </div>
+
   </div>
 
   <script>
@@ -106,7 +220,9 @@
     const db = firebase.firestore();
     const docId = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
 
-    // 1. Escuta o Radar Corporal
+    let tarefas = [];
+
+    // 1. Escuta em tempo real o Radar Corporal
     db.collection("jardim_florescimento").doc("radar_funcionamento").onSnapshot(doc => {
       const container = document.getElementById('radar-resumo');
       if (doc.exists && doc.data().registros && doc.data().registros.length > 0) {
@@ -122,32 +238,99 @@
       }
     });
 
-    // 2. Escuta o Ciclo Diário Completo
-    db.collection("ciclo_diario").doc(docId).onSnapshot((doc) => {
-      const container = document.getElementById('conteudo-dia');
-      if (!doc.exists) {
-        container.innerHTML = '<p style="font-size:0.8rem; color:#aaa; text-align:center;">Nenhum registro iniciado para o dia de hoje.</p>';
-        return;
+    // 2. Escuta em tempo real o Planejamento do Dia no Firestore
+    db.collection("ciclo_diario").doc(docId).onSnapshot(doc => {
+      if (doc.exists && doc.data().tarefas) {
+        tarefas = doc.data().tarefas;
+      } else {
+        tarefas = [];
       }
-      const d = doc.data();
-      container.innerHTML = `
-        <div class="secao" style="border-left-color: #f4a261;">
-          <div class="label" style="color:#f4a261;">🌅 MANHÃ</div>
-          <div>Energia: <strong>${d.energiaManha || 'Não informada'}</strong></div>
-          <div>Foco: ${d.focoManha || 'Ainda não registrado'}</div>
-        </div>
-        <div class="secao" style="border-left-color: #e76f51;">
-          <div class="label" style="color:#e76f51;">☀️ TARDE</div>
-          <div>Ajuste de Ritmo: <strong>${d.ajusteTarde || 'Não informado'}</strong></div>
-          <div>Foco: ${d.focoTarde || 'Ainda não registrado'}</div>
-        </div>
-        <div class="secao" style="border-left-color: #a8dadc;">
-          <div class="label" style="color:#a8dadc;">🌙 NOITE</div>
-          <div>Vitória do Dia: ${d.vitoriaNoite || 'Pendente'}</div>
-          <div>Liberado para amanhã: ${d.pendenciaNoite ? 'Guardado no papel' : 'Mente livre'}</div>
-        </div>
-      `;
+      renderizarTarefas();
     });
+
+    function tratarEnter(e) {
+      if (e.key === 'Enter') adicionarTarefa();
+    }
+
+    async function adicionarTarefa() {
+      const input = document.getElementById('nova-tarefa');
+      const texto = input.value.trim();
+      const periodo = document.getElementById('destino-periodo').value;
+
+      if (!texto) return;
+
+      const nova = {
+        id: Date.now(),
+        texto: texto,
+        periodo: periodo, // manha, tarde, noite, geral
+        concluida: false
+      };
+
+      tarefas.push(nova);
+      input.value = '';
+      await salvarFirestore();
+    }
+
+    async function alternarConcluida(id) {
+      tarefas = tarefas.map(t => t.id === id ? { ...t, concluida: !t.concluida } : t);
+      await salvarFirestore();
+    }
+
+    async function moverPeriodo(id, novoPeriodo) {
+      tarefas = tarefas.map(t => t.id === id ? { ...t, periodo: novoPeriodo } : t);
+      await salvarFirestore();
+    }
+
+    async function excluirTarefa(id) {
+      tarefas = tarefas.filter(t => t.id !== id);
+      await salvarFirestore();
+    }
+
+    async function salvarFirestore() {
+      await db.collection("ciclo_diario").doc(docId).set({
+        data: new Date().toLocaleDateString('pt-BR'),
+        tarefas: tarefas,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    }
+
+    function renderizarTarefas() {
+      const blocos = { manha: [], tarde: [], noite: [], geral: [] };
+
+      tarefas.forEach(t => {
+        if (blocos[t.periodo]) blocos[t.periodo].push(t);
+        else blocos.geral.push(t);
+      });
+
+      ['manha', 'tarde', 'noite', 'geral'].forEach(p => {
+        const container = document.getElementById('lista-' + p);
+        if (blocos[p].length === 0) {
+          container.innerHTML = `<p style="font-size:0.75rem; color:#aaa; margin:0;">Nenhum item alocado.</p>`;
+          return;
+        }
+
+        let html = '';
+        blocos[p].forEach(t => {
+          html += `
+            <div class="item-tarefa ${t.concluida ? 'concluida' : ''}">
+              <input type="checkbox" ${t.concluida ? 'checked' : ''} onclick="alternarConcluida(${t.id})" />
+              <span class="item-texto">${t.texto}</span>
+              
+              <!-- Mover de Período -->
+              <select style="padding:2px; font-size:0.7rem;" onchange="moverPeriodo(${t.id}, this.value)">
+                <option value="manha" ${t.periodo === 'manha' ? 'selected' : ''}>🌅 Manhã</option>
+                <option value="tarde" ${t.periodo === 'tarde' ? 'selected' : ''}>☀️ Tarde</option>
+                <option value="noite" ${t.periodo === 'noite' ? 'selected' : ''}>🌙 Noite</option>
+                <option value="geral" ${t.periodo === 'geral' ? 'selected' : ''}>⏳ Geral</option>
+              </select>
+
+              <button class="btn-acao" onclick="excluirTarefa(${t.id})"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      });
+    }
   </script>
 </body>
 </html>
