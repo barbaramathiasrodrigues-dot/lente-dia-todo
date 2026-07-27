@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visão do Dia Todo - Casa OS</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@500;700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+  
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    :root {
+      --bg-pergaminho: #0d0a07;
+      --card-bg: rgba(23, 16, 11, 0.92);
+      --borda-dourada: #c5a059;
+      --borda-glow: rgba(197, 160, 89, 0.35);
+      --texto-primario: #e8d8c8;
+      --texto-dourado: #f0c987;
+      --verde-elfico: #81b29a;
+      --fonte-titulo: 'Cinzel Decorative', serif;
+      --fonte-sub: 'Cinzel', serif;
+      --fonte-corpo: 'Quicksand', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-pergaminho);
+      color: var(--texto-primario);
+      font-family: var(--fonte-corpo);
+      margin: 0;
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card-bg);
+      border: 2px solid var(--borda-dourada);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 0 15px var(--borda-glow);
+      backdrop-filter: blur(8px);
+    }
+
+    h2 {
+      font-family: var(--fonte-titulo);
+      color: var(--texto-dourado);
+      font-size: 1.15rem;
+      text-align: center;
+      margin-top: 0;
+      border-bottom: 1px solid var(--borda-dourada);
+      padding-bottom: 8px;
+    }
+
+    .secao {
+      background: rgba(0,0,0,0.3);
+      border-left: 3px solid var(--borda-dourada);
+      padding: 10px 12px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 10px;
+      font-size: 0.83rem;
+      line-height: 1.4;
+    }
+
+    .label {
+      font-family: var(--fonte-sub);
+      color: var(--texto-dourado);
+      font-weight: bold;
+      font-size: 0.75rem;
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>📜 Panorâmica do Dia Todo</h2>
+    
+    <!-- Bloco de Leitura do Radar Corporal -->
+    <div class="secao" style="border-left-color: var(--verde-elfico);">
+      <div class="label" style="color: var(--verde-elfico);">🌿 RADAR CORPORAL (ÚLTIMA LEITURA)</div>
+      <div id="radar-resumo">Sincronizando corpo...</div>
+    </div>
+
+    <!-- Conteúdo Unificado do Dia -->
+    <div id="conteudo-dia">Sincronizando com o Arquivo Central...</div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyD19AiSaJosyhNL8iz4J-D1mHgbu-MOKm4",
+      authDomain: "planejamentos-83b23.firebaseapp.com",
+      projectId: "planejamentos-83b23",
+      storageBucket: "planejamentos-83b23.firebasestorage.app",
+      messagingSenderId: "651538842400",
+      appId: "1:651538842400:web:5d0b45e7df8f2ac1f0cd45",
+      measurementId: "G-GK5XJ7FZN1"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const docId = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+
+    // 1. Escuta o Radar Corporal
+    db.collection("jardim_florescimento").doc("radar_funcionamento").onSnapshot(doc => {
+      const container = document.getElementById('radar-resumo');
+      if (doc.exists && doc.data().registros && doc.data().registros.length > 0) {
+        const reg = doc.data().registros;
+        const u = reg[reg.length - 1];
+        container.innerHTML = `
+          <div>Bateria: <strong>${u.bateria || '🟢 Regulado'}</strong> (${u.hora || ''}) | Contexto: ${u.contexto || 'N/I'}</div>
+          <div>Tensão: ${u.corpo || 'Sem tensão'}</div>
+          <div>Orientação: <strong style="color:var(--texto-dourado);">${u.acao || 'Nenhuma'}</strong></div>
+        `;
+      } else {
+        container.innerText = "Nenhum registro corporal hoje.";
+      }
+    });
+
+    // 2. Escuta o Ciclo Diário Completo
+    db.collection("ciclo_diario").doc(docId).onSnapshot((doc) => {
+      const container = document.getElementById('conteudo-dia');
+      if (!doc.exists) {
+        container.innerHTML = '<p style="font-size:0.8rem; color:#aaa; text-align:center;">Nenhum registro iniciado para o dia de hoje.</p>';
+        return;
+      }
+      const d = doc.data();
+      container.innerHTML = `
+        <div class="secao" style="border-left-color: #f4a261;">
+          <div class="label" style="color:#f4a261;">🌅 MANHÃ</div>
+          <div>Energia: <strong>${d.energiaManha || 'Não informada'}</strong></div>
+          <div>Foco: ${d.focoManha || 'Ainda não registrado'}</div>
+        </div>
+        <div class="secao" style="border-left-color: #e76f51;">
+          <div class="label" style="color:#e76f51;">☀️ TARDE</div>
+          <div>Ajuste de Ritmo: <strong>${d.ajusteTarde || 'Não informado'}</strong></div>
+          <div>Foco: ${d.focoTarde || 'Ainda não registrado'}</div>
+        </div>
+        <div class="secao" style="border-left-color: #a8dadc;">
+          <div class="label" style="color:#a8dadc;">🌙 NOITE</div>
+          <div>Vitória do Dia: ${d.vitoriaNoite || 'Pendente'}</div>
+          <div>Liberado para amanhã: ${d.pendenciaNoite ? 'Guardado no papel' : 'Mente livre'}</div>
+        </div>
+      `;
+    });
+  </script>
+</body>
+</html>
